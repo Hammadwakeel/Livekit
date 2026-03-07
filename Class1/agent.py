@@ -1,13 +1,16 @@
 import asyncio
+import logging
 from dotenv import load_dotenv
 
 from livekit import agents, rtc
-# In the latest SDK, AgentServer and AgentSession are standard for Job management
 from livekit.agents import AgentServer, AgentSession, Agent, room_io, cli
 from livekit.plugins import noise_cancellation, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
-# Load your environment variables
+# 1. Setup Logging Configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("voice-agent")
+
 load_dotenv()
 
 class Assistant(Agent):
@@ -22,18 +25,36 @@ server = AgentServer()
 
 @server.rtc_session(agent_name="my-agent")
 async def my_agent(ctx: agents.JobContext):
-    # Lecture 1: Defining the session with high-speed 2026 models
+    logger.info(f"Starting agent for room: {ctx.room.name}")
+
     session = AgentSession(
-        stt="deepgram/nova-3:multi", # High speed STT
-        llm="openai/gpt-4.1-mini",  # Smart Brain
-        tts="cartesia/sonic-3:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc", # Low-latency TTS
+        stt="deepgram/nova-3:multi",
+        llm="openai/gpt-4.1-mini",
+        tts="cartesia/sonic-3:9626c31c-bec5-4cca-baa8-f8ba9e84c8bc",
         vad=silero.VAD.load(),
-        turn_detection=MultilingualModel(), # Prevents interruptions
+        turn_detection=MultilingualModel(),
     )
 
-    await ctx.connect() # Ensure we are connected to the LiveKit room first
+    # 2. Add Event Listeners for Logging
+    @session.on("user_started_speaking")
+    def on_user_speech_start():
+        logger.info("User started speaking...")
 
-    # Setup the audio pipeline with Noise Cancellation
+    @session.on("user_stopped_speaking")
+    def on_user_speech_stop():
+        logger.info("User stopped speaking. Processing...")
+
+    @session.on("agent_started_speaking")
+    def on_agent_speech_start():
+        logger.info("Agent is responding...")
+
+    @session.on("metrics_collected")
+    def on_metrics(metrics):
+        # This is great for SEO/Performance tracking!
+        logger.info(f"Metrics Collected: {metrics}")
+
+    await ctx.connect()
+
     await session.start(
         room=ctx.room,
         agent=Assistant(),
@@ -46,11 +67,11 @@ async def my_agent(ctx: agents.JobContext):
         ),
     )
 
-    # Trigger the first greeting
+    logger.info("Agent session started successfully.")
+
     await session.generate_reply(
         instructions="Greet the user warmly and offer your assistance."
     )
 
 if __name__ == "__main__":
-    # Use the standard CLI runner for 2026
     cli.run_app(server)
