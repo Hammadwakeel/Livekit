@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Environment Variables (CRITICAL: Never leak your API keys)
+.env
+.env.local
+.env.*
+!.env.example
+
+# LiveKit & Model cache
+*.onnx
+*.json
+# If models are downloaded into a specific directory, add it here
+/models/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+Class1/__pycache__/
