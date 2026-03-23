@@ -1,0 +1,16 @@
+[project]
+name = "class4"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "faiss-cpu>=1.13.2",
+    "livekit-agents>=1.4.5",
+    "livekit-plugins-cartesia>=1.4.5",
+    "livekit-plugins-openai>=1.4.5",
+    "livekit-plugins-silero>=1.4.5",
+    "livekit-plugins-turn-detector>=1.4.5",
+    "numpy>=2.4.3",
+    "openai>=2.28.0",
+    "python-dotenv>=1.2.2",
+    "sentence-transformers>=5.3.0",
+]
